@@ -1,0 +1,29 @@
+workflows:
+  ios-release:
+    name: AG-ID iOS
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: AGID
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: au.com.ag-id.app
+      xcode: latest
+    scripts:
+      - name: Unpack project
+        script: unzip -o ag-id-ios.zip -d .
+      - name: Install Capacitor
+        script: npm install
+      - name: Set up signing
+        script: xcode-project use-profiles
+      - name: Set build number
+        script: cd ios/App && agvtool new-version -all $BUILD_NUMBER
+      - name: Build app
+        script: xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
