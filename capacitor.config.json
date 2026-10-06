@@ -1,0 +1,15 @@
+{
+  "appId": "au.com.ag-id.app",
+  "appName": "AG-ID Farm Records",
+  "webDir": "www",
+  "server": {
+    "url": "https://ag-id.com.au",
+    "allowNavigation": [
+      "ag-id.com.au",
+      "www.ag-id.com.au"
+    ]
+  },
+  "ios": {
+    "contentInset": "always"
+  }
+}
