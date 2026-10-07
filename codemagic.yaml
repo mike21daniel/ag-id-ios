@@ -9,21 +9,62 @@ workflows:
       xcode: latest
     scripts:
       - name: Unpack project
-        script: unzip -o ag-id-ios.zip -d .
+        script: |
+          unzip -o ag-id-ios.zip -d .
       - name: Install Capacitor
-        script: npm install
+        script: |
+          npm install
       - name: Initialize keychain
-        script: keychain initialize
+        script: |
+          keychain initialize
       - name: Fetch signing files from Apple
-        script: app-store-connect fetch-signing-files "au.com.ag-id.app" --type IOS_APP_STORE --create
+        script: |
+          cat << 'EOF' > /tmp/cert_key.pem
+          -----BEGIN PRIVATE KEY-----
+          MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDD6NMyGQVFgRNi
+          1dov92BRdpIZbnMxQzk4RfXCIIoHO5/chOST84FCjACnm9HaAwm8JFkuSkvUXPe7
+          dwDDuDJfU/YQoEM3GaSDQ1Y+hclEDPEW7L5ufFa46t1Lc6DomaQs7f2tD2n6w2UX
+          bldaA509yjZ2aVTz4t7n4UNCL7BExEEVkhU+QZC8q5QIl5b4w8NLcJ3xpFo80osN
+          a2+fGyJGPqdLLRoHIZNTt1gY1RC/xwyjCIlzU/KMFwvxi8g56nB54zd2CekQhMv0
+          9c/WMaZEVRia+B0nJQDLsWjf6jnIivuEwoJ1hNwDgQMDBEqpPr3kY4yLqNdviVRO
+          lFFIvChdAgMBAAECggEAKlTXtb6EThVq6/NLlwu76z5UqVwdVeqxpYAwb0b6rD9s
+          9ohcn7+BEbEQvybDPHlllBrCjmcNZZDFEuPO7XuSntiUldkbTP+kdZyKOS5NY//r
+          5Ek5iMQjNQfC03fjr/7q4651HvzyqHWqFVsJUvDu/BgClqmB6sT951rcXqPRUbo5
+          kY6XnDAWhNwWc4/ECBW8B7iD3S1Az9ixs9bnx/Tp21B04DtjaHwTqArxFPt28Vqc
+          LAgEj3/20iOIHXwrcJDjPX2fXxY13XHF6W4MYE0archPumeongxVxjaKLp6Adgo+
+          1aEanyLmLDPI2Mw/9/0uCsuev0YUEH54mAk67x+wQQKBgQDhQTn/wUMygPM0fwav
+          Vl62ydGZjysZ910iCaOJp/vYznpLuixbof4A3rkcK1MMZ7TtzfUyzLQKStWbCPMQ
+          GWboyyjp9vX+5oEY6KDb9ByOt9XnjYzQ4bQqWco797mLhVh466HLavyYs+UItKAT
+          Q3a+tSoEIIL3YGN5c4pGcIeD7QKBgQDepjmC5jGkYEx6qRJeEJnxRd02W3m0BZSe
+          5SVitGurTQaAQH9ipwYaSqTfiI0sHlabmAX34Km8XC9psfpzBTE5pt3KvqpAL0N4
+          tRbJW5fCQnyGYoXDcg7EyoPLZHHZjI/5iM38goX/ZAm6MRXoUiVi4lPqrGTaLGyc
+          Im6E+M6IMQKBgDVwgA4JD6Qfq5M8v51BZF8BKlS//n2+jb3Rg5bY34rkEWd916A1
+          okkajdf8/0rmH6p7Pjy7C8uVTW/mg6PCIwP/jslS6bF7hg0ew2rrUwsY2gqBLnMv
+          2MpjWvM3JjHPhNnLLStRSnP/2cpi78ciLj24RSuNewStPWxG2Ps1HzFRAoGBAMGe
+          jCTpSgJIPDnvDan/hd/rgZPjuNJ0h+omG3zaqUculJizfhOsbAIxJ2+8sAfN2kM0
+          0Pvew7yp7hFcVQ/xU/1uvzGw3R0z/NjbohU5MaAdcWzsAKcWaQF5m2Mk1lz5f7rg
+          3UDZwO13cX4ZcZO23AxCBffuM0YHm+urhbDdLb4BAoGBAM9tPTFtg9tYMCKzP5z9
+          eGbVkT2Bh3/Ln3BVLhTpPgfkEJhEb5beKGFc4xLYQBN9jE/ugzYo1uqnngEX9z80
+          dxsDyyHWNvUk9zrbmOGn8KXbyUS56+1/RHH8zJxOIIVstk08OdwR3rI7AHenAUys
+          xjo/KQsNgVCYpjiJs+CiT3KL
+          -----END PRIVATE KEY-----
+          EOF
+          app-store-connect fetch-signing-files "au.com.ag-id.app" \
+            --type IOS_APP_STORE \
+            --create \
+            --certificate-key @file:/tmp/cert_key.pem
       - name: Add certs to keychain
-        script: keychain add-certificates
+        script: |
+          keychain add-certificates
       - name: Set up signing
-        script: xcode-project use-profiles
+        script: |
+          xcode-project use-profiles
       - name: Set build number
-        script: cd ios/App && agvtool new-version -all $BUILD_NUMBER
+        script: |
+          cd ios/App && agvtool new-version -all $BUILD_NUMBER
       - name: Build app
-        script: xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
+        script: |
+          xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
